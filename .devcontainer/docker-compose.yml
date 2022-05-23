@@ -5,44 +5,23 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-      #args:
-        # Update 'VARIANT' to pick an LTS version of Node.js: 18, 16, 14.
-        # Append -bullseye or -buster to pin to an OS version.
-        # Use -bullseye variants on local arm64/Apple Silicon.
-      #  VARIANT: 14-buster
     volumes:
       - ..:/workspace:cached
-
-    # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
-
-    # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
     network_mode: service:db
-
-    # Uncomment the next line to use a non-root user for all processes.
-    # user: node
-
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
 
   db:
     image: mongo:latest
     restart: unless-stopped
     volumes:
-      - mongodb-data:/data/db
-
-    # Uncomment to change startup options
+      - dataDB:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 123
       MONGO_INITDB_DATABASE: main
-
-    # Add "forwardPorts": ["27017"] to **devcontainer.json** to forward MongoDB locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
-
+      
   mongo-express:
     image: mongo-express
-    network_mode: service:db
     environment:
       ME_CONFIG_MONGODB_SERVER: db
       ME_CONFIG_BASICAUTH_USERNAME: root
@@ -52,6 +31,30 @@ services:
     depends_on:
       - db
     restart: unless-stopped
+    network_mode: service:db
+
+  #mailhog:
+  #  image: mailhog/mailhog
+  #  command: [ "-storage=maildir", "-maildir-path=/home/mailhog/mail/" ]
+  #  user: root
+  #  volumes:
+  #    - dataMail:/home/mailhog/mail/
+  #  restart: unless-stopped
+  #  network_mode: service:db
+
+  #minio:
+  #  image: minio/minio
+  #  volumes:
+  #    - dataStorage:/data
+  #  environment:
+  #      MINIO_ROOT_USER: minioadmin
+  #      MINIO_ROOT_PASSWORD: minioadmin
+  #  entrypoint: sh
+  #  command: -c "mkdir -p /data/static && minio server /data --console-address ":9001""
+  #  restart: unless-stopped
+  #  network_mode: service:db
 
 volumes:
-  mongodb-data:
+    dataDB: { }
+    dataMail: { }
+    dataStorage: { }

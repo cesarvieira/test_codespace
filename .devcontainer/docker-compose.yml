@@ -8,6 +8,7 @@ services:
     volumes:
       - ..:/workspace:cached
     command: sleep infinity
+    network_mode: service:db
 
   db:
     image: mongo:latest
@@ -18,9 +19,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: 123
       MONGO_INITDB_DATABASE: main
-    network_mode: service:app
       
-  mongo-express:
+  express:
     image: mongo-express
     environment:
       ME_CONFIG_MONGODB_SERVER: db
@@ -31,7 +31,8 @@ services:
     depends_on:
       - db
     restart: unless-stopped
-    network_mode: service:app
+    network_mode: service:db
+
 
   #mailhog:
   #  image: mailhog/mailhog
